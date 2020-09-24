@@ -10,7 +10,7 @@ pub struct PostFile {
 
 impl FileController {
     pub fn generate_post_flies(subreddit: String, limit: String) -> Vec<PostFile> {
-        let mut posts = Client::get_posts(&subreddit, &limit);
+        let posts = Client::get_posts(&subreddit, &limit);
 
         let mut post_files: Vec<PostFile> = Vec::new();
 

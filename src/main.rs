@@ -1,4 +1,4 @@
-use convert_case::{Case, Casing};
+use convert_case;
 use fuser::{
     FileAttr, FileType, Filesystem, ReplyAttr, ReplyData, ReplyDirectory, ReplyEntry, Request,
 };
@@ -52,9 +52,7 @@ const HELLO_TXT_ATTR: FileAttr = FileAttr {
 };
 
 struct RedditFS {
-    limit: String,
-    subreddit: String,
-    post_files: Vec<file_controller::PostFile>,
+    post_files: Vec<file_controller::PostFile>
 }
 
 impl Filesystem for RedditFS {
@@ -98,7 +96,6 @@ impl Filesystem for RedditFS {
         offset: i64,
         mut reply: ReplyDirectory,
     ) {
-        let posts = reddit::Client::get_posts(&self.subreddit, &self.limit);
 
         if ino != 1 {
             reply.error(ENOENT);
@@ -142,8 +139,6 @@ fn main() {
 
     fuser::mount(
         RedditFS {
-            limit: env::args_os().nth(3).unwrap().into_string().unwrap(),
-            subreddit: env::args_os().nth(1).unwrap().into_string().unwrap(),
             post_files: file_controller::FileController::generate_post_flies(
                 env::args_os().nth(1).unwrap().into_string().unwrap(),
                 env::args_os().nth(3).unwrap().into_string().unwrap(),
