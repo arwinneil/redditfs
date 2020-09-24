@@ -1,11 +1,14 @@
 use crate::reddit::{Client, Post};
 use convert_case::{Case, Casing};
+use fuser::{FileAttr, FileType};
+use std::time::{Duration, UNIX_EPOCH};
 
 pub struct FileController {}
 
 pub struct PostFile {
     pub post: Post,
     pub filename: String,
+    pub fileattr: FileAttr,
 }
 
 impl FileController {
@@ -19,6 +22,7 @@ impl FileController {
 
             post_files.push(PostFile {
                 filename: FileController::extract_filenames(&post.title),
+                fileattr: FileController::get_file_attr(&post.created),
                 post: post,
             })
         }
@@ -29,11 +33,34 @@ impl FileController {
     fn extract_filenames(title: &str) -> String {
         let mut filename = title.replace(&['.'][..], "");
         filename = [&(filename.to_case(Case::Snake)), ".txt"].concat();
-        filename = filename.replace(&['(', ')', ',', '\"', '?', ';', ':', '\''][..], ""); //TODO @arinnwil RegEx that
-
-        //TODO Shorten long names
+        filename = filename.replace(&['(', ')', ',', '\"', '?', ';', ':', '\''][..], ""); //TODO @arwinneil RegEx that
 
         println!("Generated Filename : {}", filename);
         return filename;
+    }
+
+    fn get_file_attr(created: &str) -> FileAttr {
+        let duration = Duration::from_secs(created.parse::<u64>().unwrap());
+
+        let attr = FileAttr {
+            ino: 2,
+            size: 13,
+            blocks: 1,
+            atime: UNIX_EPOCH + duration,
+            mtime: UNIX_EPOCH + duration,
+            ctime: UNIX_EPOCH + duration,
+            crtime: UNIX_EPOCH + duration,
+            kind: FileType::RegularFile,
+            perm: 0o644,
+            nlink: 1,
+            uid: 501,
+            gid: 20,
+            rdev: 0,
+            flags: 0,
+            blksize: 512,
+            padding: 0,
+        };
+
+        return attr;
     }
 }

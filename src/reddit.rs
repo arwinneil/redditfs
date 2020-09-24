@@ -7,6 +7,7 @@ pub struct Post {
     pub title: String,
     pub text: String,
     pub url: String,
+    pub created: String,
 }
 
 impl Client {
@@ -29,6 +30,9 @@ impl Client {
         let mut posts: Vec<Post> = Vec::new();
 
         for i in 0..limit.parse::<usize>().unwrap() {
+            let mut unix_time = post_json["data"]["children"][i]["data"]["created_utc"].to_string();
+            unix_time.truncate(10);
+
             posts.push(Post {
                 title: post_json["data"]["children"][i]["data"]["title"]
                     .as_str()
@@ -42,6 +46,7 @@ impl Client {
                     .as_str()
                     .unwrap()
                     .to_string(),
+                created: unix_time,
             });
         }
 

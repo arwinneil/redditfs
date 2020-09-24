@@ -1,4 +1,3 @@
-use convert_case;
 use fuser::{
     FileAttr, FileType, Filesystem, ReplyAttr, ReplyData, ReplyDirectory, ReplyEntry, Request,
 };
@@ -32,33 +31,19 @@ const HELLO_DIR_ATTR: FileAttr = FileAttr {
 
 const HELLO_TXT_CONTENT: &str = "Hello World!\n";
 
-const HELLO_TXT_ATTR: FileAttr = FileAttr {
-    ino: 2,
-    size: 13,
-    blocks: 1,
-    atime: UNIX_EPOCH, // 1970-01-01 00:00:00
-    mtime: UNIX_EPOCH,
-    ctime: UNIX_EPOCH,
-    crtime: UNIX_EPOCH,
-    kind: FileType::RegularFile,
-    perm: 0o644,
-    nlink: 1,
-    uid: 501,
-    gid: 20,
-    rdev: 0,
-    flags: 0,
-    blksize: 512,
-    padding: 0,
-};
-
 struct RedditFS {
-    post_files: Vec<file_controller::PostFile>
+    post_files: Vec<file_controller::PostFile>,
 }
 
 impl Filesystem for RedditFS {
     fn lookup(&mut self, _req: &Request, parent: u64, name: &OsStr, reply: ReplyEntry) {
         if parent == 1 {
-            reply.entry(&TTL, &HELLO_TXT_ATTR, 0);
+            let index = self
+                .post_files
+                .iter()
+                .position(|post| name.to_str().unwrap().to_string() == post.filename);
+
+            reply.entry(&TTL, &self.post_files[index.unwrap()].fileattr, 0);
         } else {
             reply.error(ENOENT);
         }
@@ -67,7 +52,7 @@ impl Filesystem for RedditFS {
     fn getattr(&mut self, _req: &Request, ino: u64, reply: ReplyAttr) {
         match ino {
             1 => reply.attr(&TTL, &HELLO_DIR_ATTR),
-            2 => reply.attr(&TTL, &HELLO_TXT_ATTR),
+            2 => (),
             _ => reply.error(ENOENT),
         }
     }
@@ -96,7 +81,6 @@ impl Filesystem for RedditFS {
         offset: i64,
         mut reply: ReplyDirectory,
     ) {
-
         if ino != 1 {
             reply.error(ENOENT);
             return;
