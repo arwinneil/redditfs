@@ -18,11 +18,11 @@ impl FileController {
         let mut post_files: Vec<PostFile> = Vec::new();
 
         for post in posts.into_iter() {
-            println!("Retrieved Post {}", post.title);
+            println!("Retrieved Post : {}", post.title);
 
             post_files.push(PostFile {
                 filename: FileController::extract_filenames(&post.title),
-                fileattr: FileController::get_file_attr(&post.created),
+                fileattr: FileController::get_file_attr(&post.created, post.score),
                 post: post,
             })
         }
@@ -32,19 +32,19 @@ impl FileController {
 
     fn extract_filenames(title: &str) -> String {
         let mut filename = title.replace(&['.'][..], "");
+        filename = filename.replace(&['(', ')','’','“','”', ',', '\"', '?', ';', ':','!', '\''][..], ""); //TODO @arwinneil RegEx that
         filename = [&(filename.to_case(Case::Snake)), ".txt"].concat();
-        filename = filename.replace(&['(', ')', ',', '\"', '?', ';', ':', '\''][..], ""); //TODO @arwinneil RegEx that
 
         println!("Generated Filename : {}", filename);
         return filename;
     }
 
-    fn get_file_attr(created: &str) -> FileAttr {
+    fn get_file_attr(created: &str, score : u64) -> FileAttr {
         let duration = Duration::from_secs(created.parse::<u64>().unwrap());
 
         let attr = FileAttr {
             ino: 2,
-            size: 13,
+            size: score,
             blocks: 1,
             atime: UNIX_EPOCH + duration,
             mtime: UNIX_EPOCH + duration,
@@ -54,7 +54,7 @@ impl FileController {
             perm: 0o644,
             nlink: 1,
             uid: 501,
-            gid: 20,
+            gid: 9,
             rdev: 0,
             flags: 0,
             blksize: 512,

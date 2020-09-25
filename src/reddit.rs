@@ -8,6 +8,7 @@ pub struct Post {
     pub text: String,
     pub url: String,
     pub created: String,
+    pub score: u64,
 }
 
 impl Client {
@@ -46,6 +47,7 @@ impl Client {
                     .as_str()
                     .unwrap()
                     .to_string(),
+                score: post_json["data"]["children"][i]["data"]["score"].as_u64().unwrap(),
                 created: unix_time,
             });
         }
