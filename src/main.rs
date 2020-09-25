@@ -114,7 +114,7 @@ impl Filesystem for RedditFS {
 
 fn main() {
     //env_logger::init();
-    let mountpoint = env::args_os().nth(2).unwrap().into_string().unwrap();
+    let mountpoint = env::args_os().nth(1).unwrap().into_string().unwrap();
 
     let options = ["-o", "ro", "-o", "fsname=redditfs"]
         .iter()
@@ -124,7 +124,7 @@ fn main() {
     fuser::mount(
         RedditFS {
             post_files: file_controller::FileController::generate_post_flies(
-                env::args_os().nth(1).unwrap().into_string().unwrap(),
+                env::args_os().nth(2).unwrap().into_string().unwrap(),
                 env::args_os().nth(3).unwrap().into_string().unwrap(),
             ),
         },
