@@ -42,7 +42,7 @@ impl FileController {
     fn get_file_attr(created: &str, score : u64, index : u64, selftext : &str) -> FileAttr {
         let duration = Duration::from_secs(created.parse::<u64>().unwrap());
 
-        println!("Generated file {} with size : {} ",selftext,  selftext.as_bytes().len() );
+        //println!("Generated file {} with size : {} ",selftext,  selftext.as_bytes().len() );
 
         let attr = FileAttr {
             ino: index + 2 as u64,
