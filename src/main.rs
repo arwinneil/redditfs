@@ -29,15 +29,17 @@ const HELLO_DIR_ATTR: FileAttr = FileAttr {
     padding: 0,
 };
 
-
 struct RedditFS {
     post_files: Vec<file_controller::PostFile>,
 }
 
 impl Filesystem for RedditFS {
     fn lookup(&mut self, _req: &Request, parent: u64, name: &OsStr, reply: ReplyEntry) {
-
-        println!("Lookup Request : {} with parent {}", name.to_str().unwrap().to_string(), parent);
+        println!(
+            "Lookup Request : {} with parent {}",
+            name.to_str().unwrap().to_string(),
+            parent
+        );
 
         if parent == 1 {
             let index = self
@@ -45,13 +47,22 @@ impl Filesystem for RedditFS {
                 .iter()
                 .position(|post| name.to_str().unwrap().to_string() == post.filename);
 
-            reply.entry(&TTL, &self.post_files[index.unwrap()].fileattr, 0);
+            match index {
+                Some(i) => {
+                    reply.entry(&TTL, &self.post_files[i].fileattr, 0);
+                }
+                None => {
+                    reply.error(ENOENT);
+                }
+            }
         } else {
             reply.error(ENOENT);
         }
     }
 
     fn getattr(&mut self, _req: &Request, ino: u64, reply: ReplyAttr) {
+        println!("Get Attr Request : {} ", ino);
+
         match ino {
             1 => reply.attr(&TTL, &HELLO_DIR_ATTR),
             2 => (),
@@ -68,7 +79,10 @@ impl Filesystem for RedditFS {
         _size: u32,
         reply: ReplyData,
     ) {
-        println!("ino : {} , fh: {}, offset : {}", ino, _fh, offset);
+        println!(
+            "Read Request ino : {} , fh: {}, offset : {}",
+            ino, _fh, offset
+        );
 
         let index = (ino - 2) as usize;
 
@@ -87,6 +101,10 @@ impl Filesystem for RedditFS {
         offset: i64,
         mut reply: ReplyDirectory,
     ) {
+        println!(
+            "Readdir request ino : {} , fh: {}, offset : {}",
+            ino, _fh, offset
+        );
         if ino != 1 {
             reply.error(ENOENT);
             return;
