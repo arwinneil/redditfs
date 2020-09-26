@@ -10,7 +10,7 @@ mod reddit;
 
 const TTL: Duration = Duration::from_secs(1); // 1 second
 
-const HELLO_DIR_ATTR: FileAttr = FileAttr {
+const DIR_ATTR: FileAttr = FileAttr {
     ino: 1,
     size: 0,
     blocks: 0,
@@ -64,7 +64,7 @@ impl Filesystem for RedditFS {
         println!("Get Attr Request : {} ", ino);
 
         match ino {
-            1 => reply.attr(&TTL, &HELLO_DIR_ATTR),
+            1 => reply.attr(&TTL, &DIR_ATTR),
             2 => (),
             _ => reply.error(ENOENT),
         }
