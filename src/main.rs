@@ -29,7 +29,6 @@ const HELLO_DIR_ATTR: FileAttr = FileAttr {
     padding: 0,
 };
 
-const HELLO_TXT_CONTENT: &str = "Hello World!\n";
 
 struct RedditFS {
     post_files: Vec<file_controller::PostFile>,
@@ -37,6 +36,9 @@ struct RedditFS {
 
 impl Filesystem for RedditFS {
     fn lookup(&mut self, _req: &Request, parent: u64, name: &OsStr, reply: ReplyEntry) {
+
+        println!("Lookup Request : {} with parent {}", name.to_str().unwrap().to_string(), parent);
+
         if parent == 1 {
             let index = self
                 .post_files
@@ -66,8 +68,12 @@ impl Filesystem for RedditFS {
         _size: u32,
         reply: ReplyData,
     ) {
-        if ino == 2 {
-            reply.data(&HELLO_TXT_CONTENT.as_bytes()[offset as usize..]);
+        println!("ino : {} , fh: {}, offset : {}", ino, _fh, offset);
+
+        let index = (ino - 2) as usize;
+
+        if ino > 1 {
+            reply.data(&(self.post_files[index].post.text).as_bytes()[offset as usize..]);
         } else {
             reply.error(ENOENT);
         }

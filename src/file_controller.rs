@@ -17,12 +17,12 @@ impl FileController {
 
         let mut post_files: Vec<PostFile> = Vec::new();
 
-        for post in posts.into_iter() {
-            println!("Retrieved Post : {}", post.title);
+        for (i,post) in posts.into_iter().enumerate() {
+           // println!("Retrieved Post : {}", post.title);
 
             post_files.push(PostFile {
                 filename: FileController::extract_filenames(&post.title),
-                fileattr: FileController::get_file_attr(&post.created, post.score),
+                fileattr: FileController::get_file_attr(&post.created, post.score, i as u64, &post.text),
                 post: post,
             })
         }
@@ -35,16 +35,18 @@ impl FileController {
         filename = filename.replace(&['(', ')','’','“','”', ',', '\"', '?', ';', ':','!', '\''][..], ""); //TODO @arwinneil RegEx that
         filename = [&(filename.to_case(Case::Snake)), ".txt"].concat();
 
-        println!("Generated Filename : {}", filename);
+        // println!("Generated Filename : {}", filename);
         return filename;
     }
 
-    fn get_file_attr(created: &str, score : u64) -> FileAttr {
+    fn get_file_attr(created: &str, score : u64, index : u64, selftext : &str) -> FileAttr {
         let duration = Duration::from_secs(created.parse::<u64>().unwrap());
 
+        println!("Generated file {} with size : {} ",selftext,  selftext.as_bytes().len() );
+
         let attr = FileAttr {
-            ino: 2,
-            size: score,
+            ino: index + 2 as u64,
+            size: selftext.as_bytes().len() as u64,
             blocks: 1,
             atime: UNIX_EPOCH + duration,
             mtime: UNIX_EPOCH + duration,
@@ -52,7 +54,7 @@ impl FileController {
             crtime: UNIX_EPOCH + duration,
             kind: FileType::RegularFile,
             perm: 0o644,
-            nlink: 1,
+            nlink: score as u32,
             uid: 501,
             gid: 9,
             rdev: 0,

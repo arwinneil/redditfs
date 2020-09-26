@@ -39,21 +39,20 @@ impl Client {
                     .as_str()
                     .unwrap()
                     .to_string(),
-                text: post_json["data"]["children"][i]["data"]["selftext"]
-                    .as_str()
-                    .unwrap()
-                    .to_string(),
+                text: post_json["data"]["children"][i]["data"]["selftext"].to_string(),
                 url: post_json["data"]["children"][i]["data"]["url"]
                     .as_str()
                     .unwrap()
                     .to_string(),
-                score: post_json["data"]["children"][i]["data"]["score"].as_u64().unwrap(),
+                score: post_json["data"]["children"][i]["data"]["score"]
+                    .as_u64()
+                    .unwrap(),
                 created: unix_time,
             });
         }
 
         // for i in 0..limit.parse::<usize>().unwrap() {
-        //     println!("Retrieved post : {}", posts[i].title);
+        //     println!("Retrieved post data: {}", posts[i].text);
         // }
 
         return posts;
